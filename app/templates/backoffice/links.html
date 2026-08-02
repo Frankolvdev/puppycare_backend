@@ -1,0 +1,70 @@
+{% extends "backoffice/base.html" %}
+
+{% set title = "PuppyCare - Vinculaciones" %}
+{% set page_title = "Vinculaciones" %}
+{% set page_subtitle = "Consulta, desvincula o elimina relaciones perro-dispositivo." %}
+{% set active_page = "links" %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Vinculaciones perro-dispositivo</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Perro</th>
+                <th>Dueño</th>
+                <th>Device ID</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for link in links %}
+                <tr>
+                    <td><strong>{{ link.dog.name if link.dog else "-" }}</strong></td>
+                    <td>{{ link.dog.owner.email if link.dog and link.dog.owner else "-" }}</td>
+                    <td>{{ link.device.device_id if link.device else "-" }}</td>
+                    <td>
+                        {% if link.is_active %}
+                            <span class="badge badge-success">Activo</span>
+                        {% else %}
+                            <span class="badge badge-danger">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ link.created_at.strftime("%Y-%m-%d") }}</td>
+                    <td>
+                        <div class="actions">
+                            {% if link.is_active %}
+                                <form method="post" action="/backoffice/links/{{ link.id }}/unlink">
+                                    <button class="btn-danger btn-small" type="submit"
+                                            onclick="return confirm('¿Seguro que deseas desvincular este dispositivo del perro?');">
+                                        Desvincular
+                                    </button>
+                                </form>
+                            {% endif %}
+
+                            <form method="post" action="/backoffice/links/{{ link.id }}/delete">
+                                <button class="btn-danger btn-small" type="submit"
+                                        onclick="return confirm('Esto eliminará definitivamente esta vinculación. ¿Continuar?');">
+                                    Eliminar 
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="muted">No hay vinculaciones registradas.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

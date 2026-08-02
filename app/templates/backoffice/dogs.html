@@ -1,0 +1,93 @@
+{% extends "backoffice/base.html" %}
+
+{% set title = "PuppyCare - Perros" %}
+{% set page_title = "Perros" %}
+{% set page_subtitle = "Edita perros, raza, dueño y dispositivo vinculado." %}
+{% set active_page = "dogs" %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Perros registrados</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Perro</th>
+                <th>Raza</th>
+                <th>Edad</th>
+                <th>Peso</th>
+                <th>Dueño</th>
+                <th>Dispositivo</th>
+                <th>Guardar</th>
+                <th>Eliminar</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for dog in dogs %}
+                {% set ns = namespace(active_link=None) %}
+                {% for link in dog.device_links %}
+                    {% if link.is_active %}
+                        {% set ns.active_link = link %}
+                    {% endif %}
+                {% endfor %}
+
+                <tr>
+                    <form method="post" action="/backoffice/dogs/{{ dog.id }}/update">
+                        <td><input type="text" name="name" value="{{ dog.name }}" required></td>
+                        <td>
+                            <select name="breed_id">
+                                <option value="">Sin raza</option>
+                                {% for breed in breeds %}
+                                    <option value="{{ breed.id }}" {% if dog.breed_id == breed.id %}selected{% endif %}>
+                                        {{ breed.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="number" name="age" value="{{ dog.age or '' }}"></td>
+                        <td><input type="number" step="0.01" name="weight_kg" value="{{ dog.weight_kg or '' }}"></td>
+                        <td>
+                            <a class="btn btn-secondary btn-small" href="/backoffice/users/{{ dog.owner.id }}">
+                                {{ dog.owner.email if dog.owner else "-" }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if ns.active_link %}
+                                <span class="badge badge-soft">{{ ns.active_link.device.device_id }}</span>
+                            {% else %}
+                                <span class="badge badge-warning">Sin dispositivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn-small" type="submit"
+                                    onclick="return confirm('¿Seguro que deseas guardar los cambios de este perro?');">
+                                Guardar
+                            </button>
+                        </td>
+                    </form>
+
+                    <td>
+                        <div class="actions">
+                            <form method="post" action="/backoffice/dogs/{{ dog.id }}/delete-permanent">
+                                <button class="btn-danger btn-small" type="submit"
+                                        onclick="return confirm('Esto eliminará definitivamente el perro de la base de datos. ¿Continuar?');">
+                                    Eliminar 
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" class="muted">No hay perros registrados.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

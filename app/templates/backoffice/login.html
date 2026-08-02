@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PuppyCare Backoffice Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        :root {
+            --primary: #7C6CFF;
+            --primary-dark: #345BFF;
+            --pink: #D46BFF;
+            --bg: #F7F8FF;
+            --dark: #101936;
+            --muted: #6B7798;
+            --border: #E7EAF3;
+            --danger: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(188, 218, 255, 0.8), transparent 35%),
+                radial-gradient(circle at top right, rgba(224, 202, 255, 0.85), transparent 35%),
+                var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: var(--dark);
+        }
+
+        .login-shell {
+            width: 100%;
+            max-width: 1050px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid var(--border);
+            border-radius: 34px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(31, 41, 85, 0.14);
+            backdrop-filter: blur(20px);
+        }
+
+        .hero {
+            padding: 54px;
+            background:
+                linear-gradient(135deg, rgba(124, 108, 255, 0.16), rgba(212, 107, 255, 0.18));
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 60px;
+        }
+
+        .brand-logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #B7A7FF, #E5B5FF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            box-shadow: 0 14px 30px rgba(124, 108, 255, 0.25);
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin: 0 0 16px;
+            line-height: 1.05;
+        }
+
+        .hero p {
+            font-size: 17px;
+            color: var(--muted);
+            line-height: 1.6;
+            max-width: 460px;
+        }
+
+        .hero-card {
+            margin-top: 36px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 22px;
+        }
+
+        .hero-card strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .login-panel {
+            padding: 54px;
+            background: white;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-card {
+            width: 100%;
+        }
+
+        .login-card h2 {
+            font-size: 30px;
+            margin: 0 0 8px;
+        }
+
+        .login-card .subtitle {
+            margin: 0 0 28px;
+            color: var(--muted);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--dark);
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(124, 108, 255, 0.13);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+            font-size: 15px;
+            font-weight: 900;
+            border-radius: 16px;
+            cursor: pointer;
+        }
+
+        .error {
+            background: #FEE2E2;
+            color: #991B1B;
+            padding: 12px;
+            border-radius: 14px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .hint {
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 850px) {
+            .login-shell {
+                grid-template-columns: 1fr;
+                border-radius: 26px;
+            }
+
+            .hero {
+                padding: 34px;
+            }
+
+            .brand {
+                margin-bottom: 30px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .login-panel {
+                padding: 34px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="login-shell">
+    <section class="hero">
+        <div class="brand">
+            <div class="brand-logo">PC</div>
+            <h2>PuppyCare</h2>
+        </div>
+
+        <h1>Administra dispositivos, perros y usuarios.</h1>
+
+        <p>
+            Backoffice interno para gestionar collares PuppyCare, códigos QR,
+            vinculaciones y usuarios de la aplicación.
+        </p>
+
+        <div class="hero-card">
+            <strong>Panel seguro</strong>
+            <span class="muted">
+                Acceso exclusivo para administradores y personal autorizado.
+            </span>
+        </div>
+    </section>
+
+    <section class="login-panel">
+        <div class="login-card">
+            <h2>Iniciar sesión</h2>
+            <p class="subtitle">Ingresa con tu cuenta administrativa.</p>
+
+            {% if error %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" action="/backoffice/login">
+                <label>Email</label>
+                <input type="email" name="email" required placeholder="admin@puppycare.app">
+
+                <label>Contraseña</label>
+                <input type="password" name="password" required placeholder="Tu contraseña">
+
+                <button type="submit">Entrar al backoffice</button>
+            </form>
+
+            <div class="hint">
+                Usuario local: admin@puppycare.app<br>
+                Contraseña local: admin12345
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

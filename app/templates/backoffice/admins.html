@@ -1,0 +1,88 @@
+{% extends "backoffice/base.html" %}
+
+{% set title = "PuppyCare - Administradores" %}
+{% set page_title = "Administradores" %}
+{% set page_subtitle = "Crea, edita o elimina usuarios internos del backoffice." %}
+{% set active_page = "admins" %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Crear administrador</h2>
+
+    <form class="inline-form" method="post" action="/backoffice/admins">
+        <input type="text" name="name" placeholder="Nombre" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <select name="role">
+            <option value="admin">Admin</option>
+            <option value="staff">Staff</option>
+            <option value="support">Support</option>
+        </select>
+        <button type="submit" onclick="return confirm('¿Seguro que deseas crear este administrador?');">Crear</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Administradores registrados</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Guardar</th>
+                <th>Eliminar</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for admin in admins %}
+                <tr>
+                    <form method="post" action="/backoffice/admins/{{ admin.id }}/update">
+                        <td><input type="text" name="name" value="{{ admin.name }}" required></td>
+                        <td><input type="email" name="email" value="{{ admin.email }}" required></td>
+                        <td>
+                            <select name="role">
+                                <option value="admin" {% if admin.role == "admin" %}selected{% endif %}>Admin</option>
+                                <option value="staff" {% if admin.role == "staff" %}selected{% endif %}>Staff</option>
+                                <option value="support" {% if admin.role == "support" %}selected{% endif %}>Support</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="is_active">
+                                <option value="true" {% if admin.is_active %}selected{% endif %}>Activo</option>
+                                <option value="false" {% if not admin.is_active %}selected{% endif %}>Inactivo</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn-small" type="submit"
+                                    onclick="return confirm('¿Seguro que deseas guardar los cambios de este administrador?');">
+                                Guardar
+                            </button>
+                        </td>
+                    </form>
+
+                    <td>
+                        <form method="post" action="/backoffice/admins/{{ admin.id }}/delete">
+                            <button class="btn-danger btn-small" type="submit"
+                                    onclick="return confirm('Esto eliminará definitivamente este administrador. ¿Continuar?');">
+                                Eliminar 
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="muted">No hay administradores registrados.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

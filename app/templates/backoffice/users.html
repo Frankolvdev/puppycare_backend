@@ -1,0 +1,70 @@
+{% extends "backoffice/base.html" %}
+
+{% set title = "PuppyCare - Usuarios" %}
+{% set page_title = "Usuarios" %}
+{% set page_subtitle = "Edita usuarios, revisa sus perros o elimínalos definitivamente." %}
+{% set active_page = "users" %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Usuarios registrados</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Perros</th>
+                <th>Estado</th>
+                <th>Guardar</th>
+                <th>Eliminar</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <form method="post" action="/backoffice/users/{{ user.id }}/update">
+                        <td><input type="text" name="name" value="{{ user.name or '' }}"></td>
+                        <td><input type="email" name="email" value="{{ user.email or '' }}"></td>
+                        <td>
+                            <a class="btn btn-secondary btn-small" href="/backoffice/users/{{ user.id }}">
+                                {{ user.dogs|selectattr("is_deleted", "equalto", false)|list|length }} perros
+                            </a>
+                        </td>
+                        <td>
+                            <select name="is_active">
+                                <option value="true" {% if user.is_active %}selected{% endif %}>Activo</option>
+                                <option value="false" {% if not user.is_active %}selected{% endif %}>Inactivo</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn-small" type="submit"
+                                    onclick="return confirm('¿Seguro que deseas guardar los cambios de este usuario?');">
+                                Guardar
+                            </button>
+                        </td>
+                    </form>
+
+                    <td>
+                        <form method="post" action="/backoffice/users/{{ user.id }}/delete">
+                            <button class="btn-danger btn-small" type="submit"
+                                    onclick="return confirm('Esto eliminará definitivamente el usuario, sus perros y relaciones. ¿Continuar?');">
+                                Eliminar 
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="muted">No hay usuarios registrados.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

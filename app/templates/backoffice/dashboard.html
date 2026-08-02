@@ -1,0 +1,100 @@
+{% extends "backoffice/base.html" %}
+
+{% set title = "PuppyCare - Dashboard" %}
+{% set page_title = "¡Bienvenido, Admin! 👋" %}
+{% set page_subtitle = "Resumen general de PuppyCare." %}
+{% set active_page = "dashboard" %}
+
+{% block content %}
+
+<div class="grid-4">
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div>
+            <div class="stat-label">Usuarios</div>
+            <div class="stat-value">{{ stats.users }}</div>
+            <div class="stat-note">Registrados</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">🐶</div>
+        <div>
+            <div class="stat-label">Perros</div>
+            <div class="stat-value">{{ stats.dogs }}</div>
+            <div class="stat-note">Perfiles</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">📱</div>
+        <div>
+            <div class="stat-label">Dispositivos</div>
+            <div class="stat-value">{{ stats.devices }}</div>
+            <div class="stat-note">Registrados</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">🔗</div>
+        <div>
+            <div class="stat-label">Vinculados</div>
+            <div class="stat-value">{{ stats.links }}</div>
+            <div class="stat-note">Activos</div>
+        </div>
+    </div>
+</div>
+<br>
+<div class="grid-2">
+    <div class="card">
+        <h2>Dispositivos recientes</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Device ID</th>
+                    <th>Módulo</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for device in recent_devices %}
+                    <tr>
+                        <td><strong>{{ device.device_id }}</strong></td>
+                        <td>{{ device.module or "-" }}</td>
+                        <td>
+                            {% if device.is_active %}
+                                <span class="badge badge-success">Activo</span>
+                            {% else %}
+                                <span class="badge badge-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="muted">Sin dispositivos recientes.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Accesos rápidos</h2>
+
+        <div class="actions">
+            <a class="btn" href="/backoffice/devices">Crear dispositivo</a>
+            <a class="btn btn-secondary" href="/backoffice/users">Ver usuarios</a>
+            <a class="btn btn-secondary" href="/backoffice/dogs">Ver perros</a>
+        </div>
+
+        <p class="muted" style="margin-top: 20px;">
+            Desde aquí podrás administrar dispositivos, usuarios, perros, administradores y vinculaciones.
+        </p>
+    </div>
+</div>
+
+{% endblock %}

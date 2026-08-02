@@ -1,0 +1,326 @@
+{% extends "backoffice/base.html" %}
+
+{% set title = "PuppyCare - Dispositivos" %}
+{% set page_title = "Dispositivos" %}
+{% set page_subtitle = "Crea, edita, activa, desactiva, genera QR o elimina dispositivos." %}
+{% set active_page = "devices" %}
+
+{% block content %}
+
+<div class="grid-4">
+    <div class="stat-card">
+        <div class="stat-icon">📱</div>
+        <div>
+            <div class="stat-label">Dispositivos</div>
+            <div class="stat-value">{{ devices|length }}</div>
+            <div class="stat-note">Registrados</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div>
+            <div class="stat-label">Activos</div>
+            <div class="stat-value">{{ devices|selectattr("is_active")|list|length }}</div>
+            <div class="stat-note">Disponibles</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">⛔</div>
+        <div>
+            <div class="stat-label">Inactivos</div>
+            <div class="stat-value">{{ devices|rejectattr("is_active")|list|length }}</div>
+            <div class="stat-note">Desactivados</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">🔲</div>
+        <div>
+            <div class="stat-label">QR</div>
+            <div class="stat-value">{{ devices|length }}</div>
+            <div class="stat-note">Generables</div>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="card">
+    <h2>Crear dispositivo</h2>
+
+    <div style="
+    background:#FFF7E8;
+    border:1px solid #FFD89A;
+    color:#374151;
+    padding:14px 16px;
+    border-radius:16px;
+    margin-bottom:16px;
+    font-size:14px;
+    line-height:1.45;
+">
+        ⚠️ Encienda el dispositivo y manténgalo conectado a la red antes de iniciar la vinculación.
+    </div>
+    <form class="inline-form" method="post" action="/backoffice/devices" id="createDeviceForm">
+        <input type="text" name="device_id" placeholder="DOG-1CDBD447F8B0" required>
+        <input type="text" name="module" placeholder="SIM7670G-MNGV">
+        <input type="text" name="apn" placeholder="internet.itelcel.com">
+
+        <button type="submit" id="createDeviceButton">
+            Crear
+        </button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Dispositivos registrados</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Device ID</th>
+                    <th>Módulo</th>
+                    <th>APN</th>
+                    <th>Estado</th>
+                    <th>Guardar</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for device in devices %}
+                <tr>
+                    <form method="post" action="/backoffice/devices/{{ device.device_id }}/update">
+                        <td>
+                            <strong>{{ device.device_id }}</strong>
+                        </td>
+
+                        <td>
+                            <input type="text" name="module" value="{{ device.module or '' }}">
+                        </td>
+
+                        <td>
+                            <input type="text" name="apn" value="{{ device.apn or '' }}">
+                        </td>
+
+                        <td>
+                            <select name="is_active">
+                                <option value="true" {% if device.is_active %}selected{% endif %}>Activo</option>
+                                <option value="false" {% if not device.is_active %}selected{% endif %}>Inactivo</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <button class="btn-small" type="submit"
+                                onclick="return confirm('¿Seguro que deseas guardar los cambios de este dispositivo?');">
+                                Guardar
+                            </button>
+                        </td>
+                    </form>
+
+                    <td>
+                        <div class="actions">
+                            <a class="btn btn-secondary btn-small"
+                                href="/api/v1/admin/devices/{{ device.device_id }}/qr" target="_blank">
+                                QR
+                            </a>
+
+                            {% if device.is_active %}
+                            <form method="post" action="/backoffice/devices/{{ device.device_id }}/deactivate">
+                                <button class="btn-danger btn-small" type="submit"
+                                    onclick="return confirm('¿Seguro que deseas desactivar este dispositivo?');">
+                                    Desactivar
+                                </button>
+                            </form>
+                            {% else %}
+                            <form method="post" action="/backoffice/devices/{{ device.device_id }}/activate">
+                                <button class="btn-secondary btn-small" type="submit"
+                                    onclick="return confirm('¿Seguro que deseas activar este dispositivo?');">
+                                    Activar
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <form method="post" action="/backoffice/devices/{{ device.device_id }}/delete">
+                                <button class="btn-danger btn-small" type="submit"
+                                    onclick="return confirm('Esto eliminará definitivamente el dispositivo, sus lecturas y vinculaciones relacionadas. ¿Continuar?');">
+                                    Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="muted">No hay dispositivos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="deviceLoadingOverlay" style="
+display:none;
+position:fixed;
+inset:0;
+z-index:99999;
+background:rgba(14,21,52,.72);
+backdrop-filter:blur(8px);
+align-items:center;
+justify-content:center;
+">
+
+    <div style="
+        width:min(420px,90%);
+        background:white;
+        border-radius:24px;
+        padding:34px;
+        text-align:center;
+        box-shadow:0 20px 60px rgba(0,0,0,.25);
+    ">
+
+        <div style="
+            width:58px;
+            height:58px;
+            margin:auto;
+            border-radius:50%;
+            border:6px solid #e5e7eb;
+            border-top-color:#4983F6;
+            animation:spin 1s linear infinite;
+        "></div>
+
+        <h2 style="
+            margin-top:24px;
+            margin-bottom:12px;
+            color:#0E1534;
+        ">
+            Vinculando dispositivo...
+        </h2>
+
+        <p style="
+            color:#6b7280;
+            font-size:14px;
+            margin-bottom:18px;
+        ">
+            Mantenga el dispositivo encendido y con conexión a la red.
+        </p>
+
+        <div id="deviceWaitTimer" style="
+                font-weight:600;
+                color:#4983F6;
+                margin-bottom:24px;
+             ">
+            Esperando señal... 0 s
+        </div>
+
+        <button type="button" onclick="cancelDeviceCreation()" style="
+        padding:10px 24px;
+        border:none;
+        border-radius:12px;
+        background:#adadad;
+        cursor:pointer;
+        font-size:15px;
+    ">
+            Cancelar
+        </button>
+
+    </div>
+
+</div>
+
+<style>
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<script>
+    const createDeviceForm = document.getElementById('createDeviceForm');
+    const overlay = document.getElementById('deviceLoadingOverlay');
+    const timerText = document.getElementById('deviceWaitTimer');
+    const createDeviceButton = document.getElementById('createDeviceButton');
+
+    let controller = null;
+    let timerInterval = null;
+    let currentDeviceId = null;
+
+    async function cancelDeviceCreation() {
+        if (controller) controller.abort();
+
+        if (currentDeviceId) {
+            try {
+                await fetch(`/backoffice/devices/${currentDeviceId}/delete`, {
+                    method: 'POST'
+                });
+            } catch (e) { }
+        }
+
+        window.location.href = "/backoffice/devices";
+    }
+
+    if (createDeviceForm) {
+        createDeviceForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const confirmed = confirm('¿Seguro que deseas crear este dispositivo?');
+
+            if (!confirmed) return;
+
+            const formData = new FormData(createDeviceForm);
+            currentDeviceId = formData.get('device_id');
+
+            overlay.style.display = 'flex';
+
+            let seconds = 0;
+            timerText.innerHTML = "Esperando señal... 0 s";
+
+            timerInterval = setInterval(() => {
+                seconds++;
+                timerText.innerHTML = "Esperando señal... " + seconds + " s";
+            }, 1000);
+
+            if (createDeviceButton) {
+                createDeviceButton.disabled = true;
+                createDeviceButton.textContent = 'Esperando señal...';
+            }
+
+            controller = new AbortController();
+
+            try {
+                const response = await fetch('/backoffice/devices', {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+
+                const data = await response.json();
+
+                clearInterval(timerInterval);
+
+                if (!response.ok) {
+                    alert(data.detail || 'Error al registrar dispositivo.');
+                    window.location.href = "/backoffice/devices";
+                    return;
+                }
+
+                alert(data.detail || 'Dispositivo registrado correctamente.');
+                window.location.href = "/backoffice/devices";
+
+            } catch (error) {
+                clearInterval(timerInterval);
+
+                if (error.name !== 'AbortError') {
+                    alert('Error al registrar dispositivo.');
+                    window.location.href = "/backoffice/devices";
+                }
+            }
+        });
+    }
+</script>
+
+{% endblock %}
